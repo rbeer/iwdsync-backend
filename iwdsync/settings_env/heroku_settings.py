@@ -2,21 +2,14 @@
 """
 import os
 from decouple import config
+import dj_database_url
 
 DEBUG = False
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 ALLOWED_HOSTS = ['iwdsync.herokuapp.com']
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DB_NAME'),
-        'USER': config('DB_USER'),
-        'HOST': config('DB_HOST'),
-        'PORT': config('DB_PORT'),
-        'PASSWORD': config('DB_PASS'),
-    }
-}
+DATABASES['default'] = dj_database_url.config(conn_max_age=600, ssl_require=True)
+
 
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
