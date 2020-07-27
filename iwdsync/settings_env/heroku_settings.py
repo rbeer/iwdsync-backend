@@ -18,3 +18,5 @@ DATABASES = {
         'PASSWORD': config('DB_PASS'),
     }
 }
+
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
