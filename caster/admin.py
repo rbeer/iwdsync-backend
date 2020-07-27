@@ -1,3 +1,7 @@
 from django.contrib import admin
+from caster.models import Caster
 
-# Register your models here.
+
+@admin.register(Caster)
+class CasterAdmin(admin.ModelAdmin):
+    list_display = ('twitch_channel', )
