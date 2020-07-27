@@ -15,4 +15,5 @@ pyflakes==2.2.0
 python-decouple==3.3
 pytz==2020.1
 sqlparse==0.3.1
+whitenoise==5.1.0
 wincertstore==0.2
