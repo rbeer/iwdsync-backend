@@ -119,4 +119,4 @@ CORS_ALLOW_HEADERS = (
     "access-control-allow-credentials",
     "cookie",
 )
-# CSRF_USE_SESSIONS = True
+CSRF_USE_SESSIONS = False
