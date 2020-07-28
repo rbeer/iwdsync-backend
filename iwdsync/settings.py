@@ -106,7 +106,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-SESSION_COOKIE_SAMESITE = "lax"
+SESSION_COOKIE_SAMESITE = None
 CORS_ALLOW_HEADERS = (
     "x-requested-with",
     "content-type",
