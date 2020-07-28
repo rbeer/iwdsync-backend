@@ -13,10 +13,12 @@ def caster(request, format=None):
     """
     if request.method == "GET":
         data, status_code = get_caster(request)
-    elif request.method == "PUT":
-        data, status_code = update_caster(request)
     elif request.method == "POST":
-        pass
+        action = request.data.get('action')
+        if action == 'update':
+            data, status_code = update_caster(request)
+        elif action == 'create':
+            pass
     return Response(data, status=status_code)
 
 
@@ -70,7 +72,6 @@ def get_my_caster(request, format=None):
     """Get a user's connected caster."""
     data = {}
     status_code = 200
-    print(request.user.is_authenticated)
     if request.user.is_authenticated:
         caster = request.user.caster
         data = {'data': CasterSerializer(caster, many=False).data}
