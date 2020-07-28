@@ -11,14 +11,36 @@ from caster.serializers import CasterSerializer
 def caster(request, format=None):
     """
     """
-    print(request.user)
     if request.method == "GET":
         data, status_code = get_caster(request)
     elif request.method == "PUT":
-        data, status_code = update_caster()
+        data, status_code = update_caster(request)
     elif request.method == "POST":
         pass
     return Response(data, status=status_code)
+
+
+def update_caster(request):
+    """Update caster data.
+    """
+    youtube_url = request.data.get('youtube_url')
+    irl_time = request.data.get('irl_time')
+    youtube_time = request.data.get('youtube_time')
+    if request.user.is_authenticated:
+        caster = request.user.caster
+        if youtube_url is not None:
+            caster.youtube_url = youtube_url
+        if irl_time is not None:
+            caster.irl_time = irl_time
+        if youtube_time is not None:
+            caster.youtube_time = youtube_time
+        caster.save()
+        data = {'message': 'updated caster data'}
+        status_code = 200
+    else:
+        data = {'status': 'not_logged_in', 'message': 'not logged in'}
+        status_code = 403
+    return data, status_code
 
 
 def get_caster(request):
