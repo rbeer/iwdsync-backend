@@ -23,7 +23,13 @@ def caster(request, format=None):
             data, status_code = update_caster(request)
         elif action == "create":
             pass
-    return Response(data, status=status_code)
+    return Response(data, status=status_code, headers=get_headers(request))
+
+
+def get_headers(request):
+    token = get_token(request)
+    headers = {'Set-Cookie': f'csrftoken={token}'}
+    return headers
 
 
 def update_caster(request):
@@ -87,5 +93,6 @@ def get_my_caster(request, format=None):
 
 @api_view(['GET'])
 def get_csrf(request, format=None):
-    data = {"data": get_token(request)}
-    return Response(data)
+    token = get_token(request)
+    data = {"data": token}
+    return Response(data, headers=get_headers(request))
