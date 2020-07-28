@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "caster.samesite.SameSiteMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -106,7 +107,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-SESSION_COOKIE_SAMESITE = None
+# SESSION_COOKIE_SAMESITE = None
 CORS_ALLOW_HEADERS = (
     "x-requested-with",
     "content-type",
