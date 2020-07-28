@@ -116,4 +116,4 @@ CORS_ALLOW_HEADERS = (
     "x-csrftoken",
     "access-control-allow-credentials",
 )
-# CSRF_HEADER_NAME = 'http_x_csrftoken'
+CSRF_USE_SESSIONS = True
