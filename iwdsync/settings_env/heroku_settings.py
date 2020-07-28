@@ -25,4 +25,4 @@ CORS_ORIGIN_WHITELIST = ['https://iwdsync.vercel.app', 'https://iwdsync.antigrav
 CSRF_TRUSTED_ORIGINS = ['iwdsync.vercel.app', 'iwdsync.antigravity.vercel.app']
 CORS_ALLOW_CREDENTIALS = True
 
-SESSION_COOKIE_DOMAIN = 'iwdsync.vercel.com'
+# SESSION_COOKIE_DOMAIN = 'iwdsync.vercel.com'
