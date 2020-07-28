@@ -24,3 +24,5 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 CORS_ORIGIN_WHITELIST = ['https://iwdsync.vercel.app', 'https://iwdsync.antigravity.vercel.app']
 CSRF_TRUSTED_ORIGINS = ['iwdsync.vercel.app', 'iwdsync.antigravity.vercel.app']
 CORS_ALLOW_CREDENTIALS = True
+
+SESSION_COOKIE_DOMAIN = 'iwdsync.herokuapp.com'

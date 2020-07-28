@@ -113,4 +113,5 @@ CORS_ALLOW_HEADERS = (
     "origin",
     "authorization",
     "x-csrftoken",
+    "access-control-allow-credentials",
 )
