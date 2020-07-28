@@ -83,6 +83,7 @@ def get_my_caster(request, format=None):
     return Response(data, status=status_code)
 
 
+@api_view(['GET'])
 def get_csrf(request, format=None):
     data = {"data": get_token(request)}
     return Response(data)
