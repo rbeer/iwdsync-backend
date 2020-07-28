@@ -106,7 +106,7 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
-SESSION_COOKIE_SAMESITE = None
+SESSION_COOKIE_SAMESITE = "None"
 CORS_ALLOW_HEADERS = (
     "x-requested-with",
     "content-type",
@@ -115,6 +115,6 @@ CORS_ALLOW_HEADERS = (
     "authorization",
     "x-csrftoken",
     "access-control-allow-credentials",
-    'cookie',
+    "cookie",
 )
 # CSRF_USE_SESSIONS = True
