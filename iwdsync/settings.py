@@ -115,5 +115,6 @@ CORS_ALLOW_HEADERS = (
     "authorization",
     "x-csrftoken",
     "access-control-allow-credentials",
+    'cookie',
 )
 # CSRF_USE_SESSIONS = True
