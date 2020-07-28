@@ -77,5 +77,5 @@ def get_my_caster(request, format=None):
         data = {'data': CasterSerializer(caster, many=False).data}
     else:
         data = {'message': 'Not authenticated.'}
-        status_code = 404
+        status_code = 403
     return Response(data, status=status_code)
