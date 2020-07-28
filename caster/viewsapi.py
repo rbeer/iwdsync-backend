@@ -29,7 +29,7 @@ def caster(request, format=None):
 def get_headers(request):
     token = get_token(request)
     headers = {
-        'Set-Cookie': f'csrftoken={token}; SameSite=None',
+        # 'Set-Cookie': f'csrftoken={token}; SameSite=None',
     }
     return headers
 
