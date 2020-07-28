@@ -4,11 +4,13 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 
 from django.middleware.csrf import get_token
+from django.views.decorators.csrf import csrf_exempt
 
 from caster.models import Caster
 from caster.serializers import CasterSerializer
 
 
+@csrf_exempt
 @api_view(["GET", "PUT", "POST"])
 def caster(request, format=None):
     """Get, update, create caster models
