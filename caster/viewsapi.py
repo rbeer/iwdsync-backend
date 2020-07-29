@@ -73,8 +73,8 @@ def get_caster(request):
     """
     url_path = request.GET["url_path"]
 
-    data, status_code = cache.get(url_path, (None, None))
-    if data is None:
+    output = cache.get(url_path, None)
+    if output is None:
         query = Caster.objects.filter(url_path=url_path)
         data = {}
         status_code = 200
@@ -83,7 +83,7 @@ def get_caster(request):
             data = {"data": CasterSerializer(caster, many=False).data}
         cache.set(url_path, (data, status_code), 10)
     else:
-        status_code = 200
+        data, status_code = output
     return data, status_code
 
 
