@@ -5,6 +5,7 @@ from rest_framework.decorators import api_view
 
 from django.middleware.csrf import get_token
 from django.views.decorators.csrf import csrf_exempt
+from django.core.cache import cache
 
 from caster.models import Caster
 from caster.serializers import CasterSerializer
@@ -70,12 +71,16 @@ def get_caster(request):
 
     """
     url_path = request.GET["url_path"]
-    query = Caster.objects.filter(url_path=url_path)
-    data = {}
-    status_code = 200
-    if query.exists():
-        caster = query.first()
-        data = {"data": CasterSerializer(caster, many=False).data}
+
+    data, status_code = cache.get(url_path, (None, None))
+    if data is None:
+        query = Caster.objects.filter(url_path=url_path)
+        data = {}
+        status_code = 200
+        if query.exists():
+            caster = query.first()
+            data = {"data": CasterSerializer(caster, many=False).data}
+        cache.set(url_path, (data, status_code), 10)
     return data, status_code
 
 
