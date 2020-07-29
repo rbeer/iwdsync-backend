@@ -52,6 +52,7 @@ def update_caster(request):
         caster.save()
         data = {"message": "updated caster data"}
         status_code = 200
+        cache.delete(caster.url_path)
     else:
         data = {"status": "not_logged_in", "message": "not logged in"}
         status_code = 403
