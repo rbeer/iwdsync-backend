@@ -2,6 +2,7 @@ asgiref==3.2.10
 certifi==2020.6.20
 dj-database-url==0.5.0
 Django==3.0.8
+django-bmemcached==0.3.0
 django-cors-headers==3.4.0
 django-heroku-memcacheify==1.0.0
 django-pylibmc==0.6.1
@@ -16,8 +17,11 @@ psycopg2==2.8.5
 pycodestyle==2.6.0
 pyflakes==2.2.0
 pylibmc==1.6.1
+python-binary-memcached==0.29.0
 python-decouple==3.3
 pytz==2020.1
+six==1.15.0
 sqlparse==0.3.1
+uhashring==1.2
 whitenoise==5.1.0
 wincertstore==0.2
