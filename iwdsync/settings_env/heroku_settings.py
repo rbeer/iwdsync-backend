@@ -4,6 +4,9 @@ import os
 import dj_database_url
 from decouple import config
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+
 
 DEBUG = False
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -44,3 +47,12 @@ CORS_ORIGIN_WHITELIST = [
 ]
 CSRF_TRUSTED_ORIGINS = ["iwdsync.vercel.app", "iwdsync.antigravity.vercel.app"]
 CORS_ALLOW_CREDENTIALS = True
+
+sentry_sdk.init(
+    dsn=config("SENTRY_DSN", ''),
+    integrations=[DjangoIntegration()],
+
+    # If you wish to associate users to errors (assuming you are using
+    # django.contrib.auth) you may enable sending PII data.
+    send_default_pii=True
+)
