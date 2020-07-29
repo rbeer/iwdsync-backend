@@ -82,6 +82,8 @@ def get_caster(request):
             caster = query.first()
             data = {"data": CasterSerializer(caster, many=False).data}
         cache.set(url_path, (data, status_code), 10)
+    else:
+        status_code = 200
     return data, status_code
 
 
