@@ -20,6 +20,12 @@ DATABASES = {
     }
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
 CORS_ORIGIN_WHITELIST = ['http://localhost:3000']
 CSRF_TRUSTED_ORIGINS = ['localhost:3000']
 CORS_ALLOW_CREDENTIALS = True
