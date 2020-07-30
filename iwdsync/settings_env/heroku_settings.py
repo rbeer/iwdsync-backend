@@ -41,11 +41,15 @@ CACHES = {
     }
 }
 
+
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 CORS_ORIGIN_WHITELIST = [
     "https://iwdsync.vercel.app",
     "https://iwdsync.antigravity.vercel.app",
 ]
-CSRF_TRUSTED_ORIGINS = ["iwdsync.vercel.app", "iwdsync.antigravity.vercel.app"]
+CSRF_TRUSTED_ORIGINS = ["iwdsync.vercel.app", "iwdsync.antigravity.vercel.app", "iwdsync.herokuapp.com"]
 CORS_ALLOW_CREDENTIALS = True
 
 sentry_sdk.init(
