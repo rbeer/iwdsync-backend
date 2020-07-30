@@ -22,5 +22,6 @@ from iwdsync import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.home),
+    path('loaderio-7b256fbe6d3910eaba847ceba38a7cb7/', views.loader),
     path('api/caster/', include('caster.urlsapi')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
