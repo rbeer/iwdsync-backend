@@ -23,21 +23,18 @@ STATIC_URL = "/static/"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 CACHES = {
-    'default': {
+    "default": {
         # Use django-bmemcached
-        'BACKEND': 'django_bmemcached.memcached.BMemcached',
-
+        "BACKEND": "django_bmemcached.memcached.BMemcached",
         # TIMEOUT is not the connection timeout! It's the default expiration
         # timeout that should be applied to keys! Setting it to `None`
         # disables expiration.
-        'TIMEOUT': 60,
-
-        'LOCATION': config('MEMCACHIER_SERVERS'),
-
-        'OPTIONS': {
-            'username': config('MEMCACHIER_USERNAME'),
-            'password': config('MEMCACHIER_PASSWORD'),
-        }
+        "TIMEOUT": 60,
+        "LOCATION": config("MEMCACHIER_SERVERS"),
+        "OPTIONS": {
+            "username": config("MEMCACHIER_USERNAME"),
+            "password": config("MEMCACHIER_PASSWORD"),
+        },
     }
 }
 
@@ -51,6 +48,7 @@ CORS_ORIGIN_WHITELIST = [
     "https://iwdsync-git-master.antigravity.vercel.app",
     "https://iwdsync-git-master.import-antigravity.vercel.app",
     "https://iwdsync.import-antigravity.vercel.app",
+    "https://iwdsync.app",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "iwdsync.vercel.app",
@@ -59,14 +57,14 @@ CSRF_TRUSTED_ORIGINS = [
     "iwdsync-git-master.antigravity.vercel.app",
     "iwdsync-git-master.import-antigravity.vercel.app",
     "iwdsync.import-antigravity.vercel.app",
+    "iwdsync.app",
 ]
 CORS_ALLOW_CREDENTIALS = True
 
 sentry_sdk.init(
-    dsn=config("SENTRY_DSN", ''),
+    dsn=config("SENTRY_DSN", ""),
     integrations=[DjangoIntegration()],
-
     # If you wish to associate users to errors (assuming you are using
     # django.contrib.auth) you may enable sending PII data.
-    send_default_pii=True
+    send_default_pii=True,
 )
