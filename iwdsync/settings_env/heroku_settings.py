@@ -44,17 +44,17 @@ CSRF_COOKIE_SECURE = True
 
 CORS_ORIGIN_WHITELIST = [
     "https://iwdsync.vercel.app",
-    "https://iwdsync.antigravity.vercel.app",
-    "https://iwdsync-git-master.antigravity.vercel.app",
+    # "https://iwdsync.antigravity.vercel.app",
+    # "https://iwdsync-git-master.antigravity.vercel.app",
     "https://iwdsync-git-master.import-antigravity.vercel.app",
     "https://iwdsync.import-antigravity.vercel.app",
     "https://iwdsync.app",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "iwdsync.vercel.app",
-    "iwdsync.antigravity.vercel.app",
     "iwdsync.herokuapp.com",
-    "iwdsync-git-master.antigravity.vercel.app",
+    "iwdsync.vercel.app",
+    # "iwdsync.antigravity.vercel.app",
+    # "iwdsync-git-master.antigravity.vercel.app",
     "iwdsync-git-master.import-antigravity.vercel.app",
     "iwdsync.import-antigravity.vercel.app",
     "iwdsync.app",
