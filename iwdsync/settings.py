@@ -31,6 +31,8 @@ else:
 
 # Application definition
 INSTALLED_APPS = [
+    "channels",
+    "ws",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -73,7 +75,12 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "iwdsync.wsgi.application"
+ASGI_APPLICATION = "iwdsync.routing.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators

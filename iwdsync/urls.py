@@ -21,6 +21,7 @@ from iwdsync import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('ws/', include('ws.routing')),
     path('', views.home),
     path('loaderio-7b256fbe6d3910eaba847ceba38a7cb7/', views.loader),
     path('api/caster/', include('caster.urlsapi')),
