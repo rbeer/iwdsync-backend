@@ -23,7 +23,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = config("SECRET_KEY", "oibpy+v^m9-&a_@7l1i*q%m%a3h!j4d4jt#cefu5o0u$9)96y5")
 
 HOST_ENV = config("HOST_ENV", "DEV")
-if HOST_ENV == "DEV":
+if HOST_ENV == "DEV" or HOST_ENV == "TEST":
     from iwdsync.settings_env.dev_settings import *
 else:
     from iwdsync.settings_env.heroku_settings import *

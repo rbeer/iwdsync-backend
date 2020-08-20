@@ -6,10 +6,6 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from caster.models import Caster
 
-class Control(Enum):
-    PLAY = "play"
-    PAUSE = "pause"
-
 class ViewerConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.caster = self.scope['url_route']['kwargs']['caster']
@@ -17,7 +13,7 @@ class ViewerConsumer(AsyncWebsocketConsumer):
         await self.accept()
 
     async def disconnect(self, close_code):
-        self.channel_layer.group_discard(self.caster, self.channel_name)
+        await self.channel_layer.group_discard(self.caster, self.channel_name)
 
     async def heartbeat(self, event):
         await self.send(text_data=json.dumps({
@@ -26,22 +22,23 @@ class ViewerConsumer(AsyncWebsocketConsumer):
 
     async def control(self, event):
         await self.send(text_data=json.dumps({
-            'control': event['control']
+            'control': event['action']
         }))
 
 class CasterConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
         self.user = self.scope.get('user', None)
-        if self.user.is_authenticated != True:
+        if self.user == None or self.user.is_authenticated != True:
             await send_error('Not authenticated.', self.send)
             return await self.close()
 
     async def receive(self, text_data):
         if self.user == None:
-            self.close()
+            await self.close()
 
         data = json.loads(text_data)
+        print(self.scope)
         url_path = data.get('url_path', None)
         if url_path == None:
             return await send_error('url_path must be a string.', self.send)
