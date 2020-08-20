@@ -39,9 +39,10 @@ async def test_viewer_consumer():
 @pytest.mark.django_db
 async def test_caster_consumer():
     user = await sta(User.objects.create)(username='test_user')
+    communicator = await connect('/ws/caster/iwd')
+    viewerCommunicator = await connect('/ws/viewer/iwd')
 
     # test failure when not logged in
-    communicator = await connect('/ws/caster/iwd')
     response = await communicator.receive_json_from()
     assert response == {'status': 'error', 'message': 'Not authenticated.'}
     await communicator.disconnect()
@@ -74,7 +75,7 @@ async def test_caster_consumer():
         'message': 'No caster found.'
     }
 
-    # returns `ok` and updates Caster with new `yotube_time`
+    # updates Caster with new `yotube_time`, ...
     caster = await sta(Caster.objects.create)(
         user=user,
         twitch_channel='iwilldominate',
@@ -84,11 +85,19 @@ async def test_caster_consumer():
         irl_time=0.1
     )
     await sta(caster.save)()
+
+
     await communicator.send_json_to({ 'url_path': 'iwd', 'time': 100.010 })
     response = await communicator.receive_json_from()
-    assert response == { 'status': 'ok' }
     caster = await sta(Caster.objects.get)(user=user)
     assert caster.youtube_time == 100.010
+
+    # ... responds with 'ok'
+    assert response == { 'status': 'ok' }
+
+    # and sends new 'youtube_time' to viewers
+    response = await viewerCommunicator.receive_json_from()
+    assert response == { 'youtube_time': 100.010 }
 
     await communicator.disconnect()
 

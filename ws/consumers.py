@@ -54,6 +54,12 @@ class CasterConsumer(AsyncWebsocketConsumer):
         caster = await sta(query.first)()
         caster.youtube_time = time
         await sta(caster.save)()
+
+        await self.channel_layer.group_send(caster.url_path, {
+            'type': 'heartbeat',
+            'youtube_time': time
+        })
+
         await self.send(text_data=json.dumps({
             'status': 'ok'
         }))
