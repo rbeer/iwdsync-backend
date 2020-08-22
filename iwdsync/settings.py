@@ -130,3 +130,35 @@ CORS_ALLOW_HEADERS = (
     "cookie",
 )
 # CSRF_USE_SESSIONS = False
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '{asctime} {levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'uvicorn': {
+            'propagate': False
+        },
+        'iwdsync': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'formatter': 'simple',
+            'propagate': False
+        }
+    }
+}
