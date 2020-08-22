@@ -1,3 +1,4 @@
+from enum import Enum
 import json
 from asgiref.sync import sync_to_async as sta
 from channels.auth import get_user
@@ -5,6 +6,10 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from caster.models import Caster
 from iwdsync.log import logger
+
+class MESSAGE_TYPE(Enum):
+    HEARTBEAT = 0
+    CONTROL = 1
 
 class ViewerConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -38,7 +43,7 @@ class CasterConsumer(AsyncWebsocketConsumer):
 
         query = Caster.objects.filter(user=self.user, url_path=self.url_path)
         if await sta(query.exists)() == False:
-            self.log_warning('Authenticated user has no caster')
+            self.log_error('Authenticated user has no caster')
             return await send_error('No caster found.', self.send)
 
         self.caster = await sta(query.first)()
@@ -49,6 +54,10 @@ class CasterConsumer(AsyncWebsocketConsumer):
             await self.close()
 
         data = json.loads(text_data)
+        message_type = data.get('type', None)
+        if message_type not in MESSAGE_TYPE._member_names_:
+            return await send_error(f"type must be one of {MESSAGE_TYPE._member_names_}", self.send)
+
         url_path = data.get('url_path', None)
 
         if url_path == None:

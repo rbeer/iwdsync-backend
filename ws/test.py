@@ -42,40 +42,16 @@ async def test_caster_consumer():
     communicator = await connect('/ws/caster/iwd')
     viewerCommunicator = await connect('/ws/viewer/iwd')
 
-    # test failure when not logged in
+    # returns error and closes connection when not logged in
     response = await communicator.receive_json_from()
-    assert response == {'status': 'error', 'message': 'Not authenticated.'}
+    assert response == { 'status': 'error', 'message': 'Not authenticated.' }
+
+    # returns error when authenticated user has no caster
+    communicator = await connect('/ws/caster/iwd', user=user)
+    response = await communicator.receive_json_from()
+    assert response == { 'status': 'error', 'message': 'No caster found.' }
     await communicator.disconnect()
 
-    # authroized, from now on
-    communicator = await connect('/ws/caster/iwd', user=user)
-    assert await communicator.receive_nothing() == True
-
-    # returns error when no `url_path` is given
-    await communicator.send_json_to({ 'hello': True })
-    response = await communicator.receive_json_from()
-    assert response == {
-        'status': 'error',
-        'message': 'url_path must be a string.'
-    }
-
-    # returns error when no `time` is given
-    await communicator.send_json_to({ 'url_path': 'iwd' })
-    response = await communicator.receive_json_from()
-    assert response == {
-        'status': 'error',
-        'message': 'time must be a number.'
-    }
-
-    # return error when logged in user is not assigned to user from `url_path`
-    await communicator.send_json_to({ 'url_path': 'iwd', 'time': 100.010 })
-    response = await communicator.receive_json_from()
-    assert response == {
-        'status': 'error',
-        'message': 'No caster found.'
-    }
-
-    # updates Caster with new `yotube_time`, ...
     caster = await sta(Caster.objects.create)(
         user=user,
         twitch_channel='iwilldominate',
@@ -84,10 +60,41 @@ async def test_caster_consumer():
         youtube_time=200.100,
         irl_time=0.1
     )
-    await sta(caster.save)()
 
+    communicator = await connect('/ws/caster/iwd', user=user)
+    # returns error when no `type` is given
+    await communicator.send_json_to({ 'hello': True })
+    response = await communicator.receive_json_from()
+    assert response == {
+        'status': 'error',
+        'message': "type must be one of ['HEARTBEAT', 'CONTROL']"
+    }
 
-    await communicator.send_json_to({ 'url_path': 'iwd', 'time': 100.010 })
+    # HEARTBEAT returns error when no `url_path` is given
+    await communicator.send_json_to({ 'type': 'HEARTBEAT' })
+    response = await communicator.receive_json_from()
+    assert response == {
+        'status': 'error',
+        'message': 'url_path must be a string.'
+    }
+
+    # HEARTBEAT returns error when no `time` is given
+    await communicator.send_json_to({
+        'type': 'HEARTBEAT',
+        'url_path': 'iwd'
+    })
+    response = await communicator.receive_json_from()
+    assert response == {
+        'status': 'error',
+        'message': 'time must be a number.'
+    }
+
+    # updates Caster with new `yotube_time`, ...
+    await communicator.send_json_to({
+        'type': 'HEARTBEAT',
+        'url_path': 'iwd',
+        'time': 100.010
+    })
     response = await communicator.receive_json_from()
     caster = await sta(Caster.objects.get)(user=user)
     assert caster.youtube_time == 100.010
