@@ -23,7 +23,7 @@ async def test_viewer_consumer():
         'youtube_time': 99.09
     })
     response = await communicator.receive_json_from()
-    assert response == { 'youtube_time': 99.09 }
+    assert response == { 'type': 'HEARTBEAT', 'youtube_time': 99.09 }
 
     # receives control commands
     await channel_layer.group_send('iwd', {
@@ -31,7 +31,7 @@ async def test_viewer_consumer():
         'action': 'play'
     })
     response = await communicator.receive_json_from()
-    assert response == { 'control': 'play' }
+    assert response == { 'type': 'CONTROL', 'action': 'play' }
 
     await communicator.disconnect()
 
@@ -70,14 +70,6 @@ async def test_caster_consumer():
         'message': "type must be one of ['HEARTBEAT', 'CONTROL']"
     }
 
-    # HEARTBEAT returns error when no `url_path` is given
-    await communicator.send_json_to({ 'type': 'HEARTBEAT' })
-    response = await communicator.receive_json_from()
-    assert response == {
-        'status': 'error',
-        'message': 'url_path must be a string.'
-    }
-
     # HEARTBEAT returns error when no `time` is given
     await communicator.send_json_to({
         'type': 'HEARTBEAT',
@@ -104,7 +96,7 @@ async def test_caster_consumer():
 
     # and sends new 'youtube_time' to viewers
     response = await viewerCommunicator.receive_json_from()
-    assert response == { 'youtube_time': 100.010 }
+    assert response == { 'type': 'HEARTBEAT', 'youtube_time': 100.010 }
 
     await communicator.disconnect()
 

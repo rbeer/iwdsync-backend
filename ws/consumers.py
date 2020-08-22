@@ -22,12 +22,14 @@ class ViewerConsumer(AsyncWebsocketConsumer):
 
     async def heartbeat(self, event):
         await self.send(text_data=json.dumps({
+            'type': MESSAGE_TYPE.HEARTBEAT.name,
             'youtube_time': event['youtube_time']
         }))
 
     async def control(self, event):
         await self.send(text_data=json.dumps({
-            'control': event['action']
+            'type': MESSAGE_TYPE.CONTROL.name,
+            'action': event['action']
         }))
 
 class CasterConsumer(AsyncWebsocketConsumer):
