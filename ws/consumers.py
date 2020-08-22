@@ -60,9 +60,13 @@ class CasterConsumer(AsyncWebsocketConsumer):
         if message_type not in MESSAGE_TYPE._member_names_:
             return await send_error(f"type must be one of {MESSAGE_TYPE._member_names_}", self.send)
 
-        url_path = data.get('url_path', None)
+        if message_type == MESSAGE_TYPE.HEARTBEAT.name:
+            return await self.handle_heartbeat_message(data)
+        if message_type == MESSAGE_TYPE.CONTROL.name:
+            return await self.handle_control_message()
 
-        if url_path == None:
+    async def handle_heartbeat_message(self, data: dict):
+        if self.url_path == None:
             return await send_error('url_path must be a string.', self.send)
 
         time = data.get('time', None)
@@ -73,7 +77,7 @@ class CasterConsumer(AsyncWebsocketConsumer):
         self.caster.youtube_time = time
         await sta(self.caster.save)()
 
-        viewer_count = len(self.channel_layer.groups.get(self.caster.url_path, {}))
+        viewer_count = len(self.channel_layer.groups.get(self.url_path, {}))
         if viewer_count > 0:
             logger.info('[%s] Relaying to %i viewers', self.url_path, viewer_count)
             await self.channel_layer.group_send(self.url_path, {
