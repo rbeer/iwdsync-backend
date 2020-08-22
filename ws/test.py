@@ -37,17 +37,16 @@ async def test_viewer_consumer():
 
 @pytest.mark.asyncio
 @pytest.mark.django_db
-async def test_caster_consumer():
-    user = await sta(User.objects.create)(username='test_user')
-    communicator = await connect('/ws/caster/iwd')
-    viewerCommunicator = await connect('/ws/viewer/iwd')
+async def test_caster_connect():
+    user = await sta(User.objects.create)(username='caster_connect_user')
+    communicator = await connect('/ws/caster/caster_connect')
 
     # returns error and closes connection when not logged in
     response = await communicator.receive_json_from()
     assert response == { 'status': 'error', 'message': 'Not authenticated.' }
 
     # returns error when authenticated user has no caster
-    communicator = await connect('/ws/caster/iwd', user=user)
+    communicator = await connect('/ws/caster/caster_connect', user=user)
     response = await communicator.receive_json_from()
     assert response == { 'status': 'error', 'message': 'No caster found.' }
     await communicator.disconnect()
@@ -55,13 +54,13 @@ async def test_caster_consumer():
     caster = await sta(Caster.objects.create)(
         user=user,
         twitch_channel='iwilldominate',
-        url_path='iwd',
+        url_path='caster_connect',
         youtube_url='https://you.tube/?v=0sSi2ja2',
         youtube_time=200.100,
         irl_time=0.1
     )
 
-    communicator = await connect('/ws/caster/iwd', user=user)
+    communicator = await connect('/ws/caster/caster_connect', user=user)
     # returns error when no `type` is given
     await communicator.send_json_to({ 'hello': True })
     response = await communicator.receive_json_from()
@@ -70,24 +69,40 @@ async def test_caster_consumer():
         'message': "type must be one of ['HEARTBEAT', 'CONTROL']"
     }
 
+    await communicator.disconnect()
+
+@pytest.mark.asyncio
+@pytest.mark.django_db
+async def test_caster_heartbeat():
+    user = await sta(User.objects.create)(username='caster_heartbeat_user')
+    caster = await sta(Caster.objects.create)(
+        user=user,
+        twitch_channel='foo',
+        url_path='caster_heartbeat',
+        youtube_url='https://you.tube/?v=0sSi2ja2',
+        youtube_time=200.100,
+        irl_time=0.1
+    )
+    communicator = await connect('/ws/caster/caster_heartbeat', user=user)
+    viewer_communicator = await connect('/ws/viewer/caster_heartbeat')
+
     # HEARTBEAT returns error when no `time` is given
     await communicator.send_json_to({
         'type': 'HEARTBEAT',
-        'url_path': 'iwd'
     })
     response = await communicator.receive_json_from()
     assert response == {
         'status': 'error',
-        'message': 'time must be a number.'
+        'message': 'youtube_time must be a number.'
     }
 
     # updates Caster with new `yotube_time`, ...
     await communicator.send_json_to({
         'type': 'HEARTBEAT',
-        'url_path': 'iwd',
-        'time': 100.010
+        'youtube_time': 100.010
     })
     response = await communicator.receive_json_from()
+
     caster = await sta(Caster.objects.get)(user=user)
     assert caster.youtube_time == 100.010
 
@@ -95,9 +110,10 @@ async def test_caster_consumer():
     assert response == { 'status': 'ok' }
 
     # and sends new 'youtube_time' to viewers
-    response = await viewerCommunicator.receive_json_from()
+    response = await viewer_communicator.receive_json_from()
     assert response == { 'type': 'HEARTBEAT', 'youtube_time': 100.010 }
 
+    await viewer_communicator.disconnect()
     await communicator.disconnect()
 
 async def connect(path: str, user: User = None) -> WebsocketCommunicator:

@@ -69,9 +69,9 @@ class CasterConsumer(AsyncWebsocketConsumer):
         if self.url_path == None:
             return await send_error('url_path must be a string.', self.send)
 
-        time = data.get('time', None)
+        time = data.get('youtube_time', None)
         if time == None:
-            return await send_error('time must be a number.', self.send)
+            return await send_error('youtube_time must be a number.', self.send)
 
         logger.info('[%s] Updating youtube_time', self.url_path)
         self.caster.youtube_time = time
