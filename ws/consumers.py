@@ -11,13 +11,19 @@ class MESSAGE_TYPE(Enum):
     HEARTBEAT = 0
     CONTROL = 1
 
+class CONTROL_ACTION(Enum):
+    PLAY = 1
+    PAUSE = 2
+
 class ViewerConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.caster = self.scope['url_route']['kwargs']['caster']
+        logger.debug('[%s] Adding viewer to group', self.caster)
         await self.channel_layer.group_add(self.caster, self.channel_name)
         await self.accept()
 
     async def disconnect(self, close_code):
+        logger.debug('[%s] Removing viewer from group', self.caster)
         await self.channel_layer.group_discard(self.caster, self.channel_name)
 
     async def heartbeat(self, event):
@@ -63,7 +69,7 @@ class CasterConsumer(AsyncWebsocketConsumer):
         if message_type == MESSAGE_TYPE.HEARTBEAT.name:
             return await self.handle_heartbeat_message(data)
         if message_type == MESSAGE_TYPE.CONTROL.name:
-            return await self.handle_control_message()
+            return await self.handle_control_message(data)
 
     async def handle_heartbeat_message(self, data: dict):
         if self.url_path == None:
@@ -89,6 +95,18 @@ class CasterConsumer(AsyncWebsocketConsumer):
             'status': 'ok'
         }))
 
+    async def handle_control_message(self, data: dict):
+        action = data.get('action', None)
+        if action not in CONTROL_ACTION._member_names_:
+            return await send_error(f"action must be one of {CONTROL_ACTION._member_names_}", self.send)
+
+        viewer_count = len(self.channel_layer.groups.get(self.url_path, {}))
+        if viewer_count > 0:
+            logger.info('[%s] %sing video for %i viewers', self.url_path, action, viewer_count)
+            await self.channel_layer.group_send(self.url_path, {
+                'type': 'control',
+                'action': action
+            })
 
     def log_error(self, message: str):
         logger.error('[%s] %s', self.url_path, message)

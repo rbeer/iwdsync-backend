@@ -53,7 +53,7 @@ async def test_caster_connect():
 
     caster = await sta(Caster.objects.create)(
         user=user,
-        twitch_channel='iwilldominate',
+        twitch_channel='caster_connect',
         url_path='caster_connect',
         youtube_url='https://you.tube/?v=0sSi2ja2',
         youtube_time=200.100,
@@ -77,7 +77,7 @@ async def test_caster_heartbeat():
     user = await sta(User.objects.create)(username='caster_heartbeat_user')
     caster = await sta(Caster.objects.create)(
         user=user,
-        twitch_channel='foo',
+        twitch_channel='caster_heartbeat',
         url_path='caster_heartbeat',
         youtube_url='https://you.tube/?v=0sSi2ja2',
         youtube_time=200.100,
@@ -112,6 +112,44 @@ async def test_caster_heartbeat():
     # and sends new 'youtube_time' to viewers
     response = await viewer_communicator.receive_json_from()
     assert response == { 'type': 'HEARTBEAT', 'youtube_time': 100.010 }
+
+    await viewer_communicator.disconnect()
+    await communicator.disconnect()
+
+@pytest.mark.asyncio
+@pytest.mark.django_db
+async def test_caster_control():
+    user = await sta(User.objects.create)(username='caster_control_user')
+    caster = await sta(Caster.objects.create)(
+        user=user,
+        twitch_channel='caster_control',
+        url_path='caster_control',
+        youtube_url='https://you.tube/?v=0sSi2ja2',
+        youtube_time=200.100,
+        irl_time=0.1
+    )
+    communicator = await connect('/ws/caster/caster_control', user=user)
+    viewer_communicator = await connect('/ws/viewer/caster_control')
+
+    # HEARTBEAT returns error when no `action` is given
+    await communicator.send_json_to({
+        'type': 'CONTROL',
+    })
+    response = await communicator.receive_json_from()
+    assert response == {
+        'status': 'error',
+        'message': "action must be one of ['PLAY', 'PAUSE']"
+    }
+
+    # relays control action to viewers
+    await communicator.send_json_to({
+        'type': 'CONTROL',
+        'action': 'PLAY'
+    })
+    # response = await communicator.receive_json_from()
+
+    response = await viewer_communicator.receive_json_from()
+    assert response == { 'type': 'CONTROL', 'action': 'PLAY' }
 
     await viewer_communicator.disconnect()
     await communicator.disconnect()
