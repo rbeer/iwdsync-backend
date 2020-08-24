@@ -1,1 +1,1 @@
-web: gunicorn iwdsync.wsgi --log-file -
+web: uvicorn iwdsync.asgi:application
