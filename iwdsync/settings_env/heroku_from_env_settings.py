@@ -1,13 +1,10 @@
 """iwdsync/settings_env/dev_settings.py
 """
 import os
-from decouple import config
-
+from decouple import config, Csv
 
 DEBUG = True
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-ALLOWED_HOSTS = ["localhost"]
-
 
 DATABASES = {
     'default': {
@@ -27,6 +24,26 @@ CACHES = {
     }
 }
 
-CORS_ORIGIN_WHITELIST = ['http://localhost:3000']
-CSRF_TRUSTED_ORIGINS = ['localhost:3000', 'localhost:8000']
-CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_ALLOW_ALL = False
+
+ALLOWED_HOSTS = config(
+    'ALLOWED_HOSTS',
+    default='localhost',
+    cast=Csv()
+)
+
+CORS_ORIGIN_WHITELIST = config(
+    'CORS_ORIGIN_WHITELIST',
+    default='http://localhost:3000',
+    cast=Csv()
+)
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='localhost:3000, localhost:8000',
+    cast=Csv()
+)
+CORS_ALLOW_CREDENTIALS = config(
+    'CORS_ALLOW_CREDENTIALS',
+    default=True,
+    cast=bool
+)

@@ -7,6 +7,9 @@ class SameSiteMiddleware(MiddlewareMixin):
         if 'localhost' not in origin:
             if "sessionid" in response.cookies:
                 response.cookies["sessionid"]["samesite"] = "None"
+                response.cookies["sessionid"]["secure"] = True
             if "csrftoken" in response.cookies:
                 response.cookies["csrftoken"]["samesite"] = "None"
+                response.cookies["csrftoken"]["secure"] = True
+
         return response

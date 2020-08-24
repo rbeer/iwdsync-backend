@@ -25,14 +25,13 @@ SECRET_KEY = config("SECRET_KEY", "oibpy+v^m9-&a_@7l1i*q%m%a3h!j4d4jt#cefu5o0u$9
 HOST_ENV = config("HOST_ENV", "DEV")
 if HOST_ENV == "DEV" or HOST_ENV == "TEST":
     from iwdsync.settings_env.dev_settings import *
+elif HOST_ENV == "HEROKU_FROM_ENV":
+    from iwdsync.settings_env.heroku_from_env_settings import *
 else:
     from iwdsync.settings_env.heroku_settings import *
 
-
 # Application definition
 INSTALLED_APPS = [
-    "channels",
-    "ws",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -40,6 +39,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
+    "channels",
+    "ws",
     "caster",
 ]
 

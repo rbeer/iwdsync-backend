@@ -56,7 +56,6 @@ class CasterConsumer(AsyncWebsocketConsumer):
 
         self.caster = await sta(query.first)()
 
-
     async def receive(self, text_data):
         if self.user == None:
             await self.close()
