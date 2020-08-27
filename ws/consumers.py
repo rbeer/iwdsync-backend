@@ -56,6 +56,8 @@ class CasterConsumer(AsyncWebsocketConsumer):
 
         self.caster = await sta(query.first)()
 
+        logger.info('[%s] caster connected', self.url_path)
+
     async def receive(self, text_data):
         if self.user == None:
             await self.close()
@@ -82,13 +84,11 @@ class CasterConsumer(AsyncWebsocketConsumer):
         self.caster.youtube_time = time
         await sta(self.caster.save)()
 
-        viewer_count = len(self.channel_layer.groups.get(self.url_path, {}))
-        if viewer_count > 0:
-            logger.info('[%s] Relaying to %i viewers', self.url_path, viewer_count)
-            await self.channel_layer.group_send(self.url_path, {
-                'type': 'heartbeat',
-                'youtube_time': time
-            })
+        logger.info('[%s] Relaying to youtube_time', self.url_path)
+        await self.channel_layer.group_send(self.url_path, {
+            'type': 'heartbeat',
+            'youtube_time': time
+        })
 
         await self.send(text_data=json.dumps({
             'status': 'ok'
@@ -99,13 +99,11 @@ class CasterConsumer(AsyncWebsocketConsumer):
         if action not in CONTROL_ACTION._member_names_:
             return await send_error(f"action must be one of {CONTROL_ACTION._member_names_}", self.send)
 
-        viewer_count = len(self.channel_layer.groups.get(self.url_path, {}))
-        if viewer_count > 0:
-            logger.info('[%s] %sing video for %i viewers', self.url_path, action, viewer_count)
-            await self.channel_layer.group_send(self.url_path, {
-                'type': 'control',
-                'action': action
-            })
+        logger.info('[%s] %sing video', self.url_path, action)
+        await self.channel_layer.group_send(self.url_path, {
+            'type': 'control',
+            'action': action
+        })
 
     def log_error(self, message: str):
         logger.error('[%s] %s', self.url_path, message)

@@ -1,4 +1,4 @@
-"""iwdsync/settings_env/dev_settings.py
+"""iwdsync/settings_env/docker_dev_settings.py
 """
 import os
 from decouple import config, Csv
@@ -17,10 +17,32 @@ DATABASES = {
     }
 }
 
-# use e.g. Redis here in production
+# Redis django and session cache
+REDIS_HOST = config('REDIS_HOST', default='localhost')
+REDIS_PORT = config('REDIS_PORT', default=6379, cast=int)
+REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}"
+
 CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": f"{REDIS_URL}/0",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient"
+        },
+        "KEY_PREFIX": "cache"
+    }
+}
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [{
+                "address": f"{REDIS_URL}/1"
+            }]
+        }
     }
 }
 
