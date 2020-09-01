@@ -131,14 +131,14 @@ async def test_caster_control():
     communicator = await connect('/ws/caster/caster_control', user=user)
     viewer_communicator = await connect('/ws/viewer/caster_control')
 
-    # HEARTBEAT returns error when no `action` is given
+    # CONTROL returns error when no `action` is given
     await communicator.send_json_to({
         'type': 'CONTROL',
     })
     response = await communicator.receive_json_from()
     assert response == {
         'status': 'error',
-        'message': "action must be one of ['PLAY', 'PAUSE']"
+        'message': "action must be one of ['PLAY', 'PAUSE', 'SET_VIDEO']"
     }
 
     # relays control action to viewers
@@ -146,10 +146,33 @@ async def test_caster_control():
         'type': 'CONTROL',
         'action': 'PLAY'
     })
-    # response = await communicator.receive_json_from()
-
     response = await viewer_communicator.receive_json_from()
     assert response == { 'type': 'CONTROL', 'action': 'PLAY' }
+
+    # CONTROL#SET_VIDEO returns error when no `videoId` is given
+    await communicator.send_json_to({
+        'type': 'CONTROL',
+        'action': 'SET_VIDEO'
+    })
+    response = await communicator.receive_json_from()
+    assert response == {
+        'status': 'error',
+        'message': "videoId must be a valid Youtube video id"
+    }
+    assert await viewer_communicator.receive_nothing() == True
+
+    # relays videoId to viewers
+    await communicator.send_json_to({
+        'type': 'CONTROL',
+        'action': 'SET_VIDEO',
+        'videoId': 'Vatguo8uhvM'
+    })
+    response = await viewer_communicator.receive_json_from()
+    assert response == {
+        'type': 'CONTROL',
+        'action': 'SET_VIDEO',
+        'videoId': 'Vatguo8uhvM'
+    }
 
     await viewer_communicator.disconnect()
     await communicator.disconnect()

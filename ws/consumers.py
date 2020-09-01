@@ -1,8 +1,9 @@
-from enum import Enum
-import json
 from asgiref.sync import sync_to_async as sta
 from channels.auth import get_user
 from channels.generic.websocket import AsyncWebsocketConsumer
+from enum import Enum
+import json
+import re
 
 from caster.models import Caster
 from iwdsync.log import logger
@@ -14,6 +15,7 @@ class MESSAGE_TYPE(Enum):
 class CONTROL_ACTION(Enum):
     PLAY = 1
     PAUSE = 2
+    SET_VIDEO = 3
 
 class ViewerConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -33,10 +35,14 @@ class ViewerConsumer(AsyncWebsocketConsumer):
         }))
 
     async def control(self, event):
-        await self.send(text_data=json.dumps({
+        message = {
             'type': MESSAGE_TYPE.CONTROL.name,
             'action': event['action']
-        }))
+        }
+        if event['action'] == CONTROL_ACTION.SET_VIDEO.name:
+            message['videoId'] = event['videoId']
+
+        await self.send(text_data=json.dumps(message))
 
 class CasterConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -99,11 +105,25 @@ class CasterConsumer(AsyncWebsocketConsumer):
         if action not in CONTROL_ACTION._member_names_:
             return await send_error(f"action must be one of {CONTROL_ACTION._member_names_}", self.send)
 
-        logger.info('[%s] %sing video', self.url_path, action)
-        await self.channel_layer.group_send(self.url_path, {
+        message = {
             'type': 'control',
             'action': action
-        })
+        }
+
+        if action == CONTROL_ACTION.SET_VIDEO.name:
+            video_id = data.get('videoId', '')
+            id_format_match = re.fullmatch('[a-zA-Z0-9_-]{11}', video_id)
+
+            if id_format_match is None:
+                return await send_error('videoId must be a valid Youtube video id', self.send)
+
+            message['videoId'] = video_id
+            logger.info('[%s] %sing video to %s', self.url_path, action, video_id)
+        else:
+            logger.info('[%s] %sing video', self.url_path, action)
+
+        print(message)
+        await self.channel_layer.group_send(self.url_path, message)
 
     def log_error(self, message: str):
         logger.error('[%s] %s', self.url_path, message)
