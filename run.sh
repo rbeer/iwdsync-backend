@@ -1,4 +1,11 @@
 CMD="uvicorn iwdsync.asgi:application"
 [[ "$@" ]] && CMD=$@
 source ./.venv/bin/activate
-DB_NAME=iwdsync DB_HOST=172.17.0.2 DB_PORT=5432 DB_USER=postgres DB_PASS=IWDSYNC $CMD
+
+ENV_FILE="./.env.$1"
+if [ -f $ENV_FILE ]; then
+  echo "Running with $ENV_FILE"
+  export $(grep -v '^#' $ENV_FILE | xargs)
+fi
+
+$CMD
